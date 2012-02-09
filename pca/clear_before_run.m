@@ -1,0 +1,14 @@
+function clear_before_run(hObject,handles)
+set(handles.summary_text,'String',{''});
+
+axes(handles.scores_axes);
+h = plot(0,0);
+delete(h);
+
+axes(handles.loadings_axes);
+h = plot(0,0);
+delete(h);
+
+axes(handles.per_var_axes);
+h = plot(0,0);
+delete(h);

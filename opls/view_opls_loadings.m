@@ -1,0 +1,13 @@
+% opls_loadings = {...
+% ' V1',-0.0821364732068305;...
+% ' V2',0.141953988884425;...
+% ' V3',0.986459662028278...
+% }; view_opls_loadings;
+
+figure
+loadings = [opls_loadings{:,2}];
+bar(loadings);
+set(gca,'xtick',1:length(loadings));
+set(gca,'xticklabel',{opls_loadings{:,1}});
+ylabel('Loadings');
+colormap(gray)
