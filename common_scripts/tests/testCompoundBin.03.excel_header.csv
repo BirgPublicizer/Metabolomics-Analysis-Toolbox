@@ -1,6 +1,0 @@
-Bin ID,Deleted,Compound ID,Compound Name,Known Compound,Bin (Lt),Bin (Rt),Multiplicity,Peaks to Select,J (Hz),Nucleus Assignment,HMDB ID,Chenomx,Literature,NMR Isotope,Notes
-1,,1,1-Methylnicotinamide,X,9.297,9.265,s,1,,"CH2, H2",699,X,"Lindon, year?",1H,
-2,,1,1-Methylnicotinamide,X,8.922,8.880,d,2,8.2,CH4,699,X,"Lindon, year?",1H,
-3,,4,hippurate,X,7.857,7.815,d,2,,"CH2, CH6",714,X,Chemonx/Lindon/Measured,1H,Multiplicity is different in HMDB
-4,,4,hippurate,X,7.667,7.618,t,3,,"CH4, H4",714,X,Chenomx/Lindon,1H,Multiplicity is different in HMDB
-5,,38,Glucose,X,5.262,5.189,d,2,3.677,,122,,,1H,Eric copied the rt bin from HMDB M01.  Needs checking.
