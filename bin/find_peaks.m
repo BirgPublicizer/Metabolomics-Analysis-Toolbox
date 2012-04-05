@@ -1,5 +1,7 @@
 function handles = find_peaks(handles,min_width)
-add_line_to_summary_text(handles.summary_text,'Finding peaks');
+if isfield(handles,'summary_text')
+    add_line_to_summary_text(handles.summary_text,'Finding peaks');
+end
 
 %min_width = 30;
 collection = handles.collection;
@@ -25,8 +27,12 @@ for s = 1:num_spectra
 %     collection.BETA{s} = zeros(4*length(maxs),1);
 %     collection.BETA{s}(4:4:end) = collection.x(maxs);
     collection.Y_smooth(:,s) = y_smooth;
-    add_line_to_summary_text(handles.summary_text,sprintf('Finished spectrum %d/%d',s,num_spectra));
+    if isfield(handles,'summary_text')
+        add_line_to_summary_text(handles.summary_text,sprintf('Finished spectrum %d/%d',s,num_spectra));
+    end
 end
 handles.collection = collection;
 
-add_line_to_summary_text(handles.summary_text,'Finished finding peaks');
+if isfield(handles,'summary_text')
+    add_line_to_summary_text(handles.summary_text,'Finished finding peaks');
+end

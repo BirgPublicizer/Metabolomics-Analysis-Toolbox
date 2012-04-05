@@ -7,6 +7,8 @@ for s = 1:num_spectra
     end
     try
         for b = 1:length(deconvolve)
+            left = bins(b,1);
+            right = bins(b,2);
             y = collection.Y(:,s);
             if deconvolve(b) && isfield(collection.regions{s}{b},'BETA0')
                 yinxs = collection.regions{s}{b}.inxs;
@@ -33,12 +35,15 @@ for s = 1:num_spectra
                     y(yinxs) = y(yinxs) - collection.regions{s}{b}.y_peaks - collection.regions{s}{b}.y_baseline;
                 end                
                 collection.regions{s}{b}.y_adjusted = y(yinxs);
+                sinxs = find(left >= collection.regions{s}{b}.x & collection.regions{s}{b}.x > right);
+                collection.regions{s}{b}.y_adjusted_bin = collection.regions{s}{b}.y_adjusted(sinxs);
+                collection.regions{s}{b}.x_bin = collection.regions{s}{b}.x(sinxs);
             else
-                left = bins(b,1);
-                right = bins(b,2);
-                inxs = find(left >= x & x >= right);
+                inxs = find(left >= x & x > right);
                 collection.regions{s}{b}.inxs = inxs;
-                collection.regions{s}{b}.y_adjusted = y(inxs);                
+                collection.regions{s}{b}.y_adjusted = y(inxs);
+                collection.regions{s}{b}.y_adjusted_bin = y(inxs);
+                collection.regions{s}{b}.x_bin = x(inxs);
             end
         end
     catch ME % there was an error, which probably means that the deconvolution was not completed

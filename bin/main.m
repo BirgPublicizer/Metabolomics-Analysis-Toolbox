@@ -22,7 +22,7 @@ function varargout = main(varargin)
 
 % Edit the above text to modify the response to help main
 
-% Last Modified by GUIDE v2.5 20-Dec-2011 15:09:51
+% Last Modified by GUIDE v2.5 09-Mar-2012 12:56:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1676,33 +1676,59 @@ collection = handles.collection;
 
 [bins,deconvolve_mask] = get_bins(handles);
 
+decon_xbuffer = str2num(get(handles.decon_xbuffer_edit,'String'));
+if decon_xbuffer > 0
+    collection.regions = add_buffer(collection.regions,bins,collection.maxs,collection.x,decon_xbuffer);
+end
+baseline_xwidth = str2num(get(handles.baseline_xwidth_edit,'String'));
+
+to_the_cloud = get(handles.to_the_cloud_checkbox,'Value');
+positive_baseline_constraint = get(handles.positive_baseline_constraint_checkbox,'Value');
+
+if isfield(collection,'calculate_async_ids')
+    collection = rmfield(collection,'calculate_async_ids');
+end
+if isfield(collection,'file_links')
+    collection = rmfield(collection,'file_links');
+end
+
 % Perform deconvolution
 for s = 1:num_spectra
     if ~isempty(collection.maxs{s})
-        collection.regions{s} = deconvolve2(collection.x',collection.Y(:,s),collection.maxs{s},collection.mins{s},bins,deconvolve_mask,collection.regions{s});
-        %results = deconvolve2(collection.x',collection.Y(:,s),collection.maxs{s},collection.mins{s},bins,deconvolve_mask,options);
+        [regions,file_link,calculate_async_id] = deconvolve2(collection.x',collection.Y(:,s),collection.maxs{s},collection.mins{s},...
+            bins,deconvolve_mask,collection.regions{s},decon_xbuffer,baseline_xwidth,...
+            positive_baseline_constraint,to_the_cloud);
 
-%         collection.y_fit{s} = results.y_fit;
-%         collection.y_baseline{s} = results.y_baseline;
-
-        % Update the max indices
-        %collection.maxs{s} = round((x(1) - collection.BETA{s}(4:4:end)')/xwidth)+1;
-        % I've disconnected maxs and BETA
-
-        add_line_to_summary_text(handles.summary_text,sprintf('Finished spectrum %d/%d',s,num_spectra));
+        if to_the_cloud
+            if ~isfield(collection,'file_links')
+                collection.file_links = {};
+                collection.calculate_async_id = {};
+            end
+            handles.file_links{s} = file_link;
+            handles.calculate_async_ids{s} = calculate_async_id;
+            add_line_to_summary_text(handles.summary_text,sprintf('Started spectrum %d/%d, %s, %d',s,num_spectra,file_link,calculate_async_id));
+        else % These are the final regions
+            collection.regions{s} = regions;
+            add_line_to_summary_text(handles.summary_text,sprintf('Finished spectrum %d/%d',s,num_spectra));
+        end
     else
         add_line_to_summary_text(handles.summary_text,sprintf('No peaks within current zoom for spectrum %d/%d',s,num_spectra));
     end
 end
-handles.collection = collection;
 
 % setappdata(gcf,'dirty',false);
 
-add_line_to_summary_text(handles.summary_text,sprintf('Finished deconvolution'));
+handles.collection = collection;
 
-handles.collection = adjust_y_deconvolution(handles.collection,bins,deconvolve_mask);
+if to_the_cloud
+    add_line_to_summary_text(handles.summary_text,sprintf('Started Remote deconvolution'));
+    msgbox('Started Remote Deconvolution');
+else
+    add_line_to_summary_text(handles.summary_text,sprintf('Finished deconvolution'));
+    handles.collection = adjust_y_deconvolution(handles.collection,bins,deconvolve_mask);
 
-msgbox('Finished Deconvolution');
+    msgbox('Finished Deconvolution');
+end
 
 guidata(hObject, handles);
 
@@ -1872,6 +1898,7 @@ figure;
 for b = 1:size(bins,1)
     set(handles.bins_listbox,'Value',b+1);
     plot_spectra(handles,false);
+    xlim([bins(b,2),bins(b,1)]);
     if isempty(names{b}) || strcmp(deblank(names{b}),'')
         saveas(gcf,[directoryname,'/bin_',num2str(mean(bins(b,:))),'.jpg']);
     else
@@ -1897,3 +1924,135 @@ else
     deconvolve(:) = 0;
     update_bin_list(handles,bins,deconvolve,names);
 end
+
+
+% --- Executes on button press in include_adjacent_checkbox.
+function include_adjacent_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to include_adjacent_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of include_adjacent_checkbox
+
+
+
+function baseline_xwidth_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to baseline_xwidth_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of baseline_xwidth_edit as text
+%        str2double(get(hObject,'String')) returns contents of baseline_xwidth_edit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function baseline_xwidth_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to baseline_xwidth_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function decon_xbuffer_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to decon_xbuffer_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of decon_xbuffer_edit as text
+%        str2double(get(hObject,'String')) returns contents of decon_xbuffer_edit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function decon_xbuffer_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to decon_xbuffer_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in positive_baseline_constraint_checkbox.
+function positive_baseline_constraint_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to positive_baseline_constraint_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of positive_baseline_constraint_checkbox
+
+
+% --- Executes on button press in to_the_cloud_checkbox.
+function to_the_cloud_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to to_the_cloud_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of to_the_cloud_checkbox
+
+
+% --- Executes on button press in check_deconvolution_pushbutton.
+function check_deconvolution_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to check_deconvolution_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+add_line_to_summary_text(handles.summary_text,sprintf('Checking deconvolution'));
+
+collection = handles.collection;
+num_not_finished = 0;
+if ~isfield(handles,'calculate_async_ids')
+    msgbox('No remote deconvolution to check');
+    return;
+end
+x = collection.x;
+[num_variables,num_spectra] = size(collection.Y);
+for s = 1:num_spectra
+    if isempty(handles.calculate_async_ids{s})
+        continue;
+    end
+
+    status_result = urlread('http://birg.cs.wright.edu/NMR-Webservice/deconvolution/status','post',{'token',handles.calculate_async_ids{s}});
+    if ~isempty(regexp(status_result,'In_progress','match'))
+        add_line_to_summary_text(handles.summary_text,sprintf('Still remotely processing spectrum %d/%d (%s)',s,num_spectra,handles.calculate_async_ids{s}));
+        num_not_finished = num_not_finished + 1;
+    else
+        split_status_result = split(status_result,sprintf('\n'));
+        mapper_output = urlread(split_status_result{end},'get',{});
+
+        if ~isempty(regexp(status_result,'Job not Successful','match')) % Restart
+            add_line_to_summary_text(handles.summary_text,sprintf('Job not successful spectrum %d/%d (%s)',s,num_spectra,handles.calculate_async_ids{s}));
+            msgbox('Deconvolution failed. Try again');
+            return;
+        end
+
+        collection.regions{s} = read_regions(mapper_output);
+
+        add_line_to_summary_text(handles.summary_text,sprintf('Finished spectrum %d/%d (%s)',s,num_spectra,handles.calculate_async_ids{s}));
+        collection.calculate_async_ids{s} = [];
+        collection.file_links{s} = [];
+    end
+end
+handles.collection = collection;
+if num_not_finished == 0
+    collection = rmfield(collection,'calculate_async_ids');
+    collection = rmfield(collection,'file_links');
+
+    add_line_to_summary_text(handles.summary_text,sprintf('Finished deconvolution'));
+    [bins,deconvolve_mask,names] = get_bins(handles);
+    handles.collection = adjust_y_deconvolution(handles.collection,bins,deconvolve_mask);
+    
+    msgbox('Finished Deconvolution');
+end
+guidata(hObject,handles);
+
+add_line_to_summary_text(handles.summary_text,sprintf('Finished checking remote deconvolution.'));
+

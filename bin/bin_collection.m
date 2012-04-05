@@ -10,7 +10,7 @@ if autoscale
     for i = 1:num_regions
         bin_values = [];
         for j = 1:size(Y,2)
-            bin_values(j) = sum(collection.regions{j}{i}.y_adjusted(inxs,j));
+            bin_values(j) = sum(collection.regions{j}{i}.y_adjusted);
         end
         means(i) = mean(bin_values);
         stdevs(i) = std(bin_values);

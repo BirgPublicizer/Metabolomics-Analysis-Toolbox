@@ -30,7 +30,7 @@ switch ButtonName,
      delete(h);
      
      handles.collection = collection;
-         
+
      plot_maxs(handles,true); % Added this so numbers stay in sync
      
      guidata(handles.figure1, handles);

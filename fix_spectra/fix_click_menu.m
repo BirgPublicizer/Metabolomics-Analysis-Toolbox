@@ -34,6 +34,7 @@ str = {'Get collection(s)','Load collections', ...
     '','Set reference','Normalize to reference','Zero regions', ...
     '','Save regions','Finalize','Save collections', ...
        'Post collections','Save figures','Save images', ...
+    '', 'Calc Area', 'Calc Norm Constant',...
 	'','Set zoom x distance','Set zoom y distance'};
 
 [s,unused] = listdlg('PromptString','Select an action',...
@@ -238,5 +239,16 @@ elseif strcmp(str{s},'Save images')
             plot_all;
             saveas(gcf,[indir,'/',sprintf('fix_spectrum_%d_saved_',collections{c}.base_sample_id(s)),datestr(now,'mm.dd.yyyy HH.MM.SS.jpg')]);
         end
+    end
+elseif strcmp(str{s},'Calc Area')
+    area = calc_area;
+    msgbox(['The area under the spectrum is: ',sprintf('%g',area)]);
+elseif strcmp(str{s},'Calc Norm Constant')
+    area = calc_area;
+    if(area ~= 0)
+        msgbox(['To sum-normalize to an area of 1000, multiply every point by: ', ...
+            sprintf('%g',1000/area)]);
+    else
+        msgbox('This spectrum cannot be normalized because it has 0 area.');
     end
 end
