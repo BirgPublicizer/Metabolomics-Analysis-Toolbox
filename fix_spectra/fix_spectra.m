@@ -11,8 +11,6 @@
 %   down - zooms in the y axis
 %   up/down - cycles through the spectra
 %   left/right - cycles through the regions
-addpath('../common_scripts');
-addpath('../common_scripts/cursors');
 
 % Fix spectra
 fix_spectra_h = figure;
@@ -20,5 +18,5 @@ fix_spectra_ax = gca;
 set(fix_spectra_ax,'xdir','reverse')
 xlabel('Chemical shift, ppm')
 ylabel('Intensity')
-set(fix_spectra_ax,'ButtonDownFcn','fix_click_menu')
-set(fix_spectra_h,'KeyPressFcn','fix_key_press');
+set(fix_spectra_ax,'ButtonDownFcn',@fix_click_menu)
+set(fix_spectra_h,'KeyPressFcn',@fix_key_press);

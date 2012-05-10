@@ -22,7 +22,7 @@ function varargout = main(varargin)
 
 % Edit the above text to modify the response to help main
 
-% Last Modified by GUIDE v2.5 21-Jul-2011 16:03:51
+% Last Modified by GUIDE v2.5 09-May-2012 10:27:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -113,6 +113,8 @@ try
     clear_all(hObject,handles);
 
     set(handles.description_text,'String',handles.collection.description);
+    
+    populate_listboxes(handles);
     
     msgbox('Finished loading collection');
     
@@ -279,6 +281,8 @@ try
     clear_all(hObject,handles);
     
     set(handles.description_text,'String',handles.collection.description);
+    
+    populate_listboxes(handles);
 
     msgbox('Finished loading collection');
     
@@ -287,6 +291,20 @@ try
 catch ME
     msgbox('Invalid collection');
 end
+
+function populate_listboxes(handles)
+flds = fields(handles.collection);
+valid_flds = {};
+for i = 1:length(flds)
+    [rows,cols] = size(handles.collection.(flds{i}));
+    if rows == 1 && cols == handles.collection.num_samples
+        valid_flds{end+1} = flds{i};
+    end
+end
+sorted_valid_flds = sort(valid_flds);
+
+set(handles.model_by_fields_listbox,'String',{'',sorted_valid_flds{:}});
+set(handles.model_by_fields_listbox,'Max',length({'',sorted_valid_flds{:}}));
 
 % --- Executes on selection change in model_by_listbox.
 function model_by_listbox_Callback(hObject, eventdata, handles)
@@ -426,6 +444,31 @@ function scaling_popupmenu_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in model_by_fields_listbox.
+function model_by_fields_listbox_Callback(hObject, eventdata, handles)
+% hObject    handle to model_by_fields_listbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns model_by_fields_listbox contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from model_by_fields_listbox
+
+model_by_fields_listbox(hObject,handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function model_by_fields_listbox_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to model_by_fields_listbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
