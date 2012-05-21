@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=us-ascii">
+
+  <title>Fix Spectra Maintainer Documentation</title>
+  <style type="text/css">
+    .ra {background-color: #FCF6CF; }
+    td.id {font-family: monospace; }
+    td {vertical-align:text-top; }
+  </style>
+</head>
+
+<body dir="ltr" lang="en-US">
+  <h1>Fix Spectra Maintainer Documentation</h1>
+
+  <p>This is an ad-hoc document set up to capture insights into the code of so
+  that future maintainers don't need to go through the pain of figuring it out
+  again.</p>
+
+  <p>Matlab is a language in which specifications of key data structures are
+  seldom found at all and certainly not found in one place. This document
+  provides the place to put such descriptions.</p>
+
+  <h2>App Data</h2>
+
+  <h3>Main window</h3>
+
+  <p>This section provides a list of all of the in-use keys for the
+  <code>getappdata(handle,key)</code> statement in the main window of
+  fix_spectra.</p>
+
+  <table class="identifier_defs">
+    <tbody>
+      <tr>
+        <th>Identifier</th>
+
+        <th>Meaning</th>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">collections</td>
+
+        <td>cell array of spectral collections</td>
+      </tr>
+
+      <tr>
+        <td class="id">add_processing_log</td>
+
+        <td>text to add to the end of the processing log on save; a
+        string.</td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">collection_inx</td>
+
+        <td>index of the current collection in collections array</td>
+      </tr>
+
+      <tr>
+        <td class="id">spectrum_inx</td>
+
+        <td>index of the current spectrum in the current collection</td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">lh</td>
+
+        <td>Unknown. May have something to do with temporary data waiting for
+        acceptance. Used in <code>clear_all_except_regions.m</code> and
+        <code>plot.m</code></td>
+      </tr>
+
+      <tr>
+        <td class="id">yh</td>
+
+        <td>Unknown. May have something to do with temporary data waiting for
+        acceptance. Used in <code>clear_all_except_regions.m</code> and
+        <code>plot.m</code></td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">yh_fixed</td>
+
+        <td>Unknown. May have something to do with temporary data waiting for
+        acceptance. Used in <code>clear_all_except_regions.m</code> and
+        <code>plot.m</code></td>
+      </tr>
+
+      <tr>
+        <td class="id">yh_baseline</td>
+
+        <td>Unknown. May have something to do with temporary data waiting for
+        acceptance. Used in <code>clear_all_except_regions.m</code> and
+        <code>plot.m</code></td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">suffix</td>
+
+        <td>Unknown. Used in <code>fix_click_menu.m</code></td>
+      </tr>
+
+      <tr>
+        <td class="id">temp_suffix</td>
+
+        <td>Unknown. Used in <code>fix_click_menu.m</code> ,
+        <code>normalize_to_reference.m</code> , <code>zero_regions.m</code> ,
+        and <code>fix_baseline.m</code></td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">xdist</td>
+
+        <td>Unknown. Used in <code>fix_click_menu.m</code> and
+        <code>fix_key_press.m</code></td>
+      </tr>
+
+      <tr>
+        <td class="id">ydist</td>
+
+        <td>Unknown. Used in <code>fix_click_menu.m</code> and
+        <code>fix_key_press.m</code></td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">bin_inx</td>
+
+        <td>Unknown. Used in&nbsp; <code>fix_key_press.m</code></td>
+      </tr>
+
+      <tr>
+        <td class="id">left_noise_cursor</td>
+
+        <td>Unknown. Used in <span style=
+        "font-family: monospace;">set_baseline_regions</span>
+        <code>.m</code></td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">right_noise_cursor</td>
+
+        <td>Unknown. Used in <span style=
+        "font-family: monospace;">set_baseline_regions</span>
+        <code>.m</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Spectrum quotient window</h3>
+
+  <p>This section provides a list of all of the in-use keys for the
+  <code>getappdata(handle,key)</code> statement in the spectrum quotient window
+  of fix_spectra.</p>
+
+  <table class="identifier_defs">
+    <tbody>
+      <tr>
+        <th>Identifier</th>
+
+        <th>Meaning</th>
+      </tr>
+
+      <tr>
+        <td class="id">binned_spectra</td>
+
+        <td>struct array of spectra binned to 0.04 ppm and sum-normalized to
+        1000</td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">spectrum_inx</td>
+
+        <td>index of the current spectrum in the current collection</td>
+      </tr>
+
+      <tr>
+        <td class="id">ref_spectrum</td>
+
+        <td>struct containing the current reference spectrum</td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">use_spectrum</td>
+
+        <td>array of logical. use_spectrum(i) is true iff the spectrum at index
+        i is used in creating the reference spectrum</td>
+      </tr>
+
+      <tr>
+        <td class="id">use_bin</td>
+
+        <td>array of logical. use_bin(i) is true iff the bin at index i is used
+        in calculating quotients for determining the normalization
+        coefficient</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>GUI Handles Structure</h2>
+
+  <h3>Probabilistic quotient normalization window</h3>
+
+  <p>This section provides a list of all of the in-use keys for the handles
+  object passed to every event handler in the probabilistic quotient
+  normalization window of fix_spectra.</p>
+
+  <table class="identifier_defs">
+    <tbody>
+      <tr>
+        <th>Identifier</th>
+
+        <th>Meaning</th>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">binned_spectra</td>
+
+        <td>struct array of the binned spectra passed to
+        prob_quotient_norm_dialog. Has an extra field quotients(i,j)
+        that holds the most recently calculated value of
+        ref_spectrum.Y(i)/Y(i,j) where ref_spectrum is the
+        ref_spectrum field of handles.</td>
+      </tr>
+
+      <tr>
+        <td class="id">ref_spectrum</td>
+
+        <td>struct containing the current reference spectrum</td>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">use_spectrum</td>
+
+        <td>array of logical. use_spectrum(i) is true iff the spectrum at index
+        i is used in creating the reference spectrum</td>
+      </tr>
+
+      <tr>
+        <td class="id">use_bin</td>
+
+        <td>array of logical. use_bin(i) is true iff the bin at index i is used
+        in calculating quotients for determining the normalization
+        coefficient</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Spectrum Inclusion</h3>
+
+  <p>This section provides a list of all of the in-use keys for the
+  handles object passed to every event handler in the spectral
+  inclusion/exclusion window</p>
+
+  <table class="identifier_defs">
+    <tbody>
+      <tr>
+        <th>Identifier</th>
+
+        <th>Meaning</th>
+      </tr>
+
+      <tr class="ra">
+        <td class="id">spectra</td>
+
+        <td>
+	  cell array of spectral collection structs.
+	</td>
+      </tr>
+      <tr>
+        <td class="id">use_spectrum</td>
+	  Parallel cell array to the spectra array. Each entry is a
+            logical vector with the same number of entries as the
+            number of spectra in the corresponding collection. One of
+            the logical values is true if that spectrum will be
+            used in constructing the reference spectrum.
+	</td>
+      </tr>
+      <tr class="ra">
+        <td class="id">field_values</td>
+
+        <td>
+	  A cell array containing the values used in some spectrum for
+	  the field name selected in the field_name_popup. These
+	  values are in the same order as the values of the
+	  field_value_popup, so indexing into this array gives the
+	  currently selected value. Since not all values are strings,
+	  this must be maintained separately from the string values of
+	  field_value_popup to allow for correct matching.
+	</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+</body>
+</html>

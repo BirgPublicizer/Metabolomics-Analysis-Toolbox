@@ -1,4 +1,0 @@
-"Bin ID","Deleted","Compound ID","Compound Name","Known Compound","Bin (Lt)","Bin (Rt)","Multiplicity","Peaks to Select","J (Hz)","Nucleus Assignment","HMDB ID","Chenomx","Literature","NMR Isotope","Notes"
-10,,7,"alpha-Ketoglutarate","X",2.472,2.430,"t",3,,"g CH2/CH2",,"X","Chemonx/Lindon/Measured","1H",
-11,X,25,"succinate","X",2.425,2.405,"s",1,,"CH",254,"X","Chemonx/Lindon/Measured","1H",
-12,X,26,"N-Acetylglutamine","X",2.055,2.025,"s",1,,"CH3",6029,"X","Chenomx/Lindon","1H",

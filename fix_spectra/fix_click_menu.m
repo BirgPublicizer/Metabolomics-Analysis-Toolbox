@@ -26,14 +26,25 @@ function fix_click_menu(hObject, eventdata, handles) %#ok<INUSD>
 % -------------------------------------------------------------------------
 %
 % Because this is a callback no examples are needed.
+%
+% -------------------------------------------------------------------------
+% Authors
+% -------------------------------------------------------------------------
+%
+% Dan Homer ????
+%
+% Paul Anderson ????
+%
+% Eric Moyer 2011-2012 (eric_moyer@yahoo.com)
 
 str = {'Get collection(s)','Load collections', ...
 ...%'','Set noise regions', ...
 	'','Load regions','Create signal map','Create new region', ...
        'Edit region','Delete region','Clear regions','Fix baseline', ...
-    '','Set reference','Normalize to reference','Zero regions', 'Sum normalize','Normalize to weight',...
+    '','Set reference','Normalize to reference','Zero regions', 'Sum normalize','Normalize to weight',...     
     '','Save regions','Finalize','Save collections', ...
        'Post collections','Save figures','Save images', ...
+    '', 'Prob Quot Norm''n', ...
     '', 'Calc Area', 'Calc Norm Constant',...
 	'','Set zoom x distance','Set zoom y distance'};
 
@@ -119,6 +130,10 @@ elseif strcmp(str{s},'Load regions')
     load_regions
 elseif strcmp(str{s},'Normalize to reference')
     normalize_to_reference;
+elseif strcmp(str{s},'Normalize to weight')
+     normalize_to_weight;
+elseif strcmp(str{s},'Sum normalize')
+     sum_normalize;    
 elseif strcmp(str{s},'Zero regions')
     zero_regions;
 elseif strcmp(str{s},'Set reference')
@@ -240,10 +255,37 @@ elseif strcmp(str{s},'Save images')
             saveas(gcf,[indir,'/',sprintf('fix_spectrum_%d_saved_',collections{c}.base_sample_id(s)),datestr(now,'mm.dd.yyyy HH.MM.SS.jpg')]);
         end
     end
-elseif strcmp(str{s},'Normalize to weight')
-    normalize_to_weight;
-elseif strcmp(str{s},'Sum normalize')
-    sum_normalize;
+elseif strcmp(str{s},'Prob Quot Norm''n')
+    collections = getappdata(gcf,'collections');
+    if isempty(collections); return; end
+    
+    % Prepare the data for quotient normalization
+    %TODO: add a dialog to ask for the widths
+    binned = bin_collections(collections, 0.04, true);
+    
+    regions = get_regions;
+    use_bin = ~bins_overlapping_regions(binned{1}.x, regions);
+    
+    % Interactively generate the normalization multipliers
+    retvals = prob_quotient_norm_dialog({binned, use_bin});
+
+    % Parse return values (including aborting if cancel was clicked in the
+    % dialog box)
+    was_canceled = retvals{2};
+    if was_canceled; return; end
+    
+    multipliers = retvals{3};
+    proc_log = retvals{4};
+    
+    % perform the normalization
+    collections = multiply_collections(collections, multipliers);
+    
+    % update the processing log
+    collections = append_to_processing_log(collections, proc_log);
+    
+    % set the result as the current app data
+    setappdata(gcf, 'collections', collections);
+    plot_all;
 elseif strcmp(str{s},'Calc Area')
     area = calc_area;
     msgbox(['The area under the spectrum is: ',sprintf('%g',area)]);
