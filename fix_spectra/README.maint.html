@@ -44,14 +44,37 @@
       <tr class="ra">
         <td class="id">collections</td>
 
-        <td>cell array of spectral collections</td>
+        <td>
+	  <p>Cell array of spectral collections</p>
+
+	  <p>There are several fields that hold temporary values until
+	  the user finalizes a change. Instead of holding the values
+	  for the updated collection here, they can be held in
+	  the <code>fixed_collections</code> <code>appdata</code>
+	  field. If the author has stored data in
+	  the <code>fixed_collections</code> field, it indicates that
+	  he has decided not to use these extra collection fields
+	  except for display.</p>
+	  <p>The temporary collection fields are:
+	    <ul>
+	      <li><code>Y_fixed</code> = y values of the changed
+	      spectrum</li>
+	      <li><code>Y_baseline</code> = y values of the baseline
+	      (if there is one)</li>
+	      <li><code>handles</code> = handles for gui objects
+	      created during the <code>normalize_to_reference</code>
+	      routine.</li>
+	    </ul>
+	  </p>
+	</td>
       </tr>
 
       <tr>
         <td class="id">add_processing_log</td>
 
-        <td>text to add to the end of the processing log on save; a
-        string.</td>
+        <td>text to add to the end of the processing log; a
+        string. The beginning is also used as the legend text when
+        there are unfinalized changes.</td>
       </tr>
 
       <tr class="ra">
@@ -107,7 +130,9 @@
       <tr>
         <td class="id">temp_suffix</td>
 
-        <td>Unknown. Used in <code>fix_click_menu.m</code> ,
+        <td>The suffix added to the end of the individual collection
+        filenames when save_collection is called. Used
+        in <code>fix_click_menu.m</code> ,
         <code>normalize_to_reference.m</code> , <code>zero_regions.m</code> ,
         and <code>fix_baseline.m</code></td>
       </tr>
@@ -146,6 +171,17 @@
         <td>Unknown. Used in <span style=
         "font-family: monospace;">set_baseline_regions</span>
         <code>.m</code></td>
+      </tr>
+
+      <tr>
+        <td class="id">fixed_collections</td>
+
+        <td>If this is an <code>appdata</code> field then it contains
+        the collection after the current changes have been applied -
+        including updated processing logs and added metadata fields.
+        It should be removed from <code>appdata</code> after it has
+        been copied to the collection <code>appdata</code> variable in
+        finalize.</td>
       </tr>
     </tbody>
   </table>
@@ -186,8 +222,9 @@
       <tr class="ra">
         <td class="id">use_spectrum</td>
 
-        <td>array of logical. use_spectrum(i) is true iff the spectrum at index
-        i is used in creating the reference spectrum</td>
+        <td>a cell array of logical arrays. use_spectrum{i}(j) is
+          true iff the j-th spectrum in the i-th collection should
+          be used in calculating the reference spectrum.</td>
       </tr>
 
       <tr>
@@ -235,8 +272,9 @@
       <tr class="ra">
         <td class="id">use_spectrum</td>
 
-        <td>array of logical. use_spectrum(i) is true iff the spectrum at index
-        i is used in creating the reference spectrum</td>
+        <td>a cell array of logical arrays. use_spectrum{i}(j) is true
+          iff the j-th spectrum in the i-th collection should be used
+          in calculating the reference spectrum.</td>
       </tr>
 
       <tr>

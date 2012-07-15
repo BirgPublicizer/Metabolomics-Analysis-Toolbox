@@ -44,7 +44,7 @@ function [ with_quotients ] = set_quotients_field( collections, ref_spec )
 
 with_quotients = collections;
 for c = 1:length(collections)
-    num_samples = collections{c}.num_samples;
+    num_samples = size(collections{c}.Y,2);
     repeated = repmat(ref_spec.Y, 1, num_samples);
     with_quotients{c}.quotients = repeated ./ collections{c}.Y;
 end

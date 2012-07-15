@@ -1,4 +1,6 @@
-function fix_key_press
+function fix_key_press(figure_h, event) %#ok<INUSD>
+% Callback handling keypresses for the fix_spectra application main figure
+
 collections = getappdata(gcf,'collections');
 if isempty(collections)
     return

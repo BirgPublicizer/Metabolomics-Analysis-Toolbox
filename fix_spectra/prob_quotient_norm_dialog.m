@@ -22,7 +22,7 @@ function varargout = prob_quotient_norm_dialog(varargin)
 %      normalization_factors are the normalization factors calculated for 
 %                   each of the spectra passed in the "binned_spectra" argument on 
 %                   the when the dialog was most recently raised or
-%                   created. normalization_factors(c,s) is the
+%                   created. normalization_factors{c}(s) is the
 %                   normalization factor by which spectrum s in
 %                   the collection binned_spectra{c} should be multiplied
 %                   in order to normalize it with respect to concentration.
@@ -140,21 +140,44 @@ function update_ui(handles)
 %Plot the quotient skewnesses
 num_spec = num_spectra_in(handles.binned_spectra);
 skewnesses = zeros(num_spec, 1);
-cur_spec = 1;
+collection_indices_for_spectrum = zeros(num_spec, 2); %collection_indices(i,:)=[j,k] means that binned_spectra{j}.Y(:,k) is the spectrum whose skewness is recored in skewnesses(i)
+first_empty = 1;
 for c=1:length(handles.binned_spectra)
     num_samples = handles.binned_spectra{c}.num_samples;
-    selected_quotients = handles.binned_spectra{c}.quotients(handles.use_bin, :);
-    skewnesses(cur_spec:(cur_spec+num_samples-1))= ...
-        quartile_skewness(selected_quotients);
-    cur_spec = cur_spec + num_samples;
+    selected_quotients = iqr_normed_quotients(handles.binned_spectra{c}.quotients(handles.use_bin, :));
+    last_filled = first_empty+num_samples-1;
+    skewnesses(first_empty:last_filled)= quartile_skewness(selected_quotients);
+    collection_indices_for_spectrum(first_empty:last_filled,1)=c*ones(1,num_samples);
+    collection_indices_for_spectrum(first_empty:last_filled,2)=(1:num_samples)';
+    first_empty = first_empty + num_samples;
 end
 
+% Calculate the bin_width
 if length(skewnesses) >= 10
-    num_bins = freedman_diaconis(skewnesses);
+    bin_width = freedman_diaconis(skewnesses);
 else
     num_bins = 2*length(skewnesses);
+    if num_bins > 0
+        bin_width = (max(skewnesses)-min(skewnesses))*1.01/num_bins;
+    else
+        bin_width = 0.00001;
+    end
 end
-hist(handles.skewness_histogram_axes, skewnesses, num_bins);
+if bin_width <= 0 %Ensure that the next loop terminates
+    bin_width = 0.00001;
+end
+
+% Create the bin edges ensuring that the last bin does not end on the
+% maximum value (to avoid problems with a special case on histc)
+skew_bin_edges=min(skewnesses):bin_width:max(skewnesses);
+while skew_bin_edges(end) <= max(skewnesses)
+    skew_bin_edges = [skew_bin_edges, skew_bin_edges(end)+bin_width]; %#ok<AGROW>
+end
+skew_bin_centers = (skew_bin_edges(1:end-1)+skew_bin_edges(2:end))/2;
+
+% Count the number of spectra in each bin
+[skew_bin_counts, bin_for_spectrum]=histc(skewnesses, skew_bin_edges);
+hist_handle = bar(skew_bin_centers, skew_bin_counts(1:end-1)); 
 xlabel(handles.skewness_histogram_axes, 'Quartile Skewness of Quotient Distribution');
 ylabel(handles.skewness_histogram_axes, 'Number of Spectra');
 
@@ -177,33 +200,9 @@ function normalize_button_Callback(hObject, eventdata, handles) %#ok<INUSL,DEFNU
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-multipliers = cell(size(handles.binned_spectra));
-max_s = 0;
-for c=1:length(handles.binned_spectra)
-    selected_quotients = handles.binned_spectra{c}.quotients(handles.use_bin, :);
-    medians = prctile(selected_quotients,50);
-    multipliers{c} = medians;
-    max_s = max(max_s, length(multipliers{c}));
-end
+multipliers = pq_multipliers(handles.binned_spectra, handles.use_bin);
 
-multipliers_array = zeros(length(multipliers), max_s);
-for c=1:length(multipliers)
-    for s=1:length(multipliers{c})
-        multipliers_array(c,s)=multipliers{c}(s);
-    end
-end
-
-multipliers = multipliers_array;
-
-spectrum_list_txt = to_str(cell_find(handles.use_spectrum));
-bin_centers_list_txt = to_str(handles.ref_spectrum.x(~handles.use_bin));
-normalization_facts_txt = to_str(multipliers);
-
-log_text = sprintf(['  Probabilistic quotient normalization '...
-    'using spectra %s to generate a reference spectrum and ignoring ' ...
-    'bins centered at %s in calculating the quotients. This resulted ' ...
-    'in normalization factors of %s.'], ...
-    spectrum_list_txt, bin_centers_list_txt, normalization_facts_txt);
+log_text = '  Probabilistic quotient normalized.';
 
 handles.output = {handles.figure1, false, multipliers, log_text};
 

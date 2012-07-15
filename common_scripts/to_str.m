@@ -78,7 +78,7 @@ function str = to_str( in )
 % Eric Moyer (May 2012) eric_moyer@yahoo.com
 %
 
-if iscell(in) && ismatrix(in)
+if iscell(in) && is_matrix(in)
     % Cell matrices and vectors
     rows = size(in,1);
     cols = size(in,2);
@@ -101,7 +101,7 @@ if iscell(in) && ismatrix(in)
         end        
     end
     str = [str, '}'];
-elseif iscell(in) && ~ismatrix(in)
+elseif iscell(in) && ~is_matrix(in)
     % Muldidimensional cell arrays
     str=sprintf('reshape(%s,%s)',to_str(reshape(in, [], 1)), to_str(size(in)));    
 elseif isstruct(in)
@@ -122,7 +122,7 @@ elseif ischar(in)
         end
         str = [str,']'];
     end
-elseif ismatrix(in)
+elseif is_matrix(in)
     % Scalar matrices
     rows = size(in,1);
     cols = size(in,2);

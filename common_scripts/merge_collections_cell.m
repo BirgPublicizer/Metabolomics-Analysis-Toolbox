@@ -30,7 +30,7 @@ for c = 1:length(collections)
             for i = 1:length(collections{c}.(field))
                 collection.(field){end+1} = collections{c}.(field){i};
             end
-        elseif ismatrix(collections{c}.(field))
+        elseif is_matrix(collections{c}.(field))
             for i = 1:length(collections{c}.(field))
                 collection.(field){end+1} = collections{c}.(field)(i);
             end

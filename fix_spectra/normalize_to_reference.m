@@ -1,30 +1,44 @@
-function normalize_to_reference    
+function normalize_to_reference
+% Normalizes by dividing by the area under peaks selected by the user
+%
+% This is useful if there is an internal standard etc.
+%
+% -------------------------------------------------------------------------
+% Authors
+% -------------------------------------------------------------------------
+%
+% Paul Anderson (before Summer 2011) pauleanderson@gmail.com
+%
+% Eric Moyer (May 2012) eric_moyer@yahoo.com
+%
+
 prompt={'Left:','Right:','Reference Peaks:','Non-reference Peaks:'};
 name='Normalize to reference';
 numlines=1;
 defaultanswer={'0.2','-0.2','0.1,0.0,-0.1',''};
 answer=inputdlg(prompt,name,numlines,defaultanswer);
+if isempty(answer)
+    return; %Was cancelled
+end
 left = str2num(answer{1});
 right = str2num(answer{2});
-temp = split(answer{3},',');
-reference_peaks = size(temp);
-for i = 1:length(temp)
-    reference_peaks(i) = str2num(temp{i});
-end
-temp = split(answer{4},',');
-non_reference_peaks = size(temp);
-for i = 1:length(temp)
-    non_reference_peaks(i) = str2num(temp{i});
-end
+reference_peaks = str2num(answer{3}); %#ok<ST2NM>
+non_reference_peaks = str2num(answer{4}); %#ok<ST2NM>
+
 X_temp = [reference_peaks,non_reference_peaks];
 [all_X,X_inxs] = sort(X_temp,'descend');
 reference_X_inxs = X_inxs(1:length(reference_peaks));
 non_reference_X_inxs = X_inxs(end-length(non_reference_peaks):end);
 
-collections = getappdata(gcf,'collections');
+collections = ensure_original_multiplied_by_field( getappdata(gcf,'collections') );
+old_collections = collections;
 for c = 1:length(collections)
-    collections{c}.Y_fixed = collections{c}.Y;
     fit_inxs = find(left >= collections{c}.x & collections{c}.x >= right);
+    
+    proc_l = collections{c}.processing_log;
+    proc_l = sprintf('%s Normalized to reference [%f,%f].', proc_l,left,right);
+    collections{c}.processing_log = proc_l;
+    
     for s = 1:collections{c}.num_samples
         [y_fit,MGPX,baseline_BETA,x_baseline_BETA,converged] = curve_fit(collections{c}.x,collections{c}.Y(:,s),fit_inxs,all_X,all_X,left,right);
         if ~converged
@@ -56,7 +70,9 @@ for c = 1:length(collections)
         for i = 1:length(reference_X_inxs)
             sum_all_reference_peaks = sum_all_reference_peaks + sum(peaks{reference_X_inxs(i)});
         end
-        collections{c}.Y_fixed(:,s) = collections{c}.Y(:,s)/sum_all_reference_peaks;
+        collections{c}.Y(:,s) = collections{c}.Y(:,s)/sum_all_reference_peaks;
+        collections{c}.original_multiplied_by(s) = ...
+            collections{c}.original_multiplied_by(s) * (1/sum_all_reference_peaks);
         try
             delete(collections{c}.handles{s}); % Get rid of old handles
         catch
@@ -64,7 +80,9 @@ for c = 1:length(collections)
         collections{c}.handles{s} = handles;
     end
 end
-setappdata(gcf,'collections',collections);
+old_collections = copy_y_to_y_fixed(collections, old_collections);
+setappdata(gcf,'collections', old_collections);
+setappdata(gcf,'fixed_collections', collections);
 setappdata(gcf,'add_processing_log',sprintf('Normalized to reference [%f,%f].',left,right));
 setappdata(gcf,'temp_suffix','_normalize_to_reference');
 plot_all
