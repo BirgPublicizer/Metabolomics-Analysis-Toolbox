@@ -2,7 +2,7 @@
 
 Metabolomics Analysis Toolbox is a collection of software developed by
 the [Wright State University Bioinformatics Research
-Group](http://birg.cs.wright.edu/) and the [College of Charleston Bioinformatics Research Group](http://birg.cs.cofc.edu/index.php/Bioinformatics_Research_Group) to help in metabolomics research.
+Group](http://birg.cs.wright.edu/) at the [Kno.e.sis Center](http://knoesis.org) and the [College of Charleston Bioinformatics Research Group](http://birg.cs.cofc.edu/index.php/Bioinformatics_Research_Group) to help in metabolomics research.
 
 Right now, it mainly consists of GUI software to help in various
 phases of the analysis of the complex NMR spectra produced by
